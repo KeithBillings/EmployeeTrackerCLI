@@ -1,0 +1,23 @@
+{
+  "name": "employeetrackercli",
+  "version": "1.0.0",
+  "description": "This is a CLI app that demonstrates how a user can keep track of their employees using a database. It uses Inquirer, MySQL, Node.js, and Javascript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KeithBillings/EmployeeTrackerCLI.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KeithBillings/EmployeeTrackerCLI/issues"
+  },
+  "homepage": "https://github.com/KeithBillings/EmployeeTrackerCLI#readme",
+  "dependencies": {
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
+}
