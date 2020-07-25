@@ -1,6 +1,7 @@
-let mysql = require("mysql");
+const mysql = require("mysql");
+const consoleTable = require("console.table")
 
-let connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "localhost",
 
   // Your port; if not 3306
@@ -10,19 +11,40 @@ let connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "gamespot21",
-  database: "Employee Tracker"
+  password: "",
+  database: "employee_trackerdb"
 });
 
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
 });
 
 
-let data = connection.query("SELECT * FROM employees", function(err, res){
-  if(err) throw err;
-  console.log('Table contains: ', res);
+const data = connection.query(
+  `SELECT 	
+    employee.id,
+    employee.first_name,
+    employee.last_name,
+    role.title,
+    department.department,
+    managers.manager,
+    role.salary        
+  FROM employee 
+  LEFT OUTER JOIN role ON (
+    employee.role_id = role.id    
+  )
+  LEFT OUTER JOIN department ON (
+    department.id = role.department_id
+  )
+  LEFT OUTER JOIN managers ON (
+    employee.manager_id = managers.id
+  );`, 
+function (err, res) {
+  if (err) throw err;
+  showResults(res);
 });
 
-console.log(data.RowDataPacket);
+function showResults (results) {
+  console.table(results);
+}
