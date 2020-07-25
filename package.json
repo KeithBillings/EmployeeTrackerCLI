@@ -4,7 +4,8 @@
   "description": "This is a CLI app that demonstrates how a user can keep track of their employees using a database. It uses Inquirer, MySQL, Node.js, and Javascript.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node connection.js"
   },
   "repository": {
     "type": "git",
