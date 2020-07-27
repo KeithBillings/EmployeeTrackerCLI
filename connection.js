@@ -1,6 +1,8 @@
 const mysql = require("mysql");
 const consoleTable = require("console.table");
-const inquirer = require('inquirer')
+const inquirer = require('inquirer');
+
+let continueQuestions = true;
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -12,7 +14,7 @@ const connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "gamespot21",
+  password: "", // Change this to your MySQL pw
   database: "employee_trackerdb"
 });
 
@@ -22,7 +24,7 @@ connection.connect(function (err) {
   showAll();
 });
 
-function showResults(results) {
+function tableResults(results) {
   console.table(results);
 };
 
@@ -48,7 +50,7 @@ function showAll() {
   );`,
     function (err, res) {
       if (err) throw err;
-      showResults(res);
+      tableResults(res);
     })
 };
 
@@ -59,7 +61,7 @@ function addDepartment(name) {
     function (err, res) {
       if (err) throw err;
       console.log(`Added a department named: ${name}!`)
-      showResults(res);
+      listDepartments();
     }
   )
 };
@@ -70,7 +72,7 @@ function removeDepartment(name) {
     function (err, res) {
       if (err) throw err;
       console.log(`Removed the department named: ${name}.`)
-      showResults(res);
+      listDepartments(res);
     }
   )
 };
@@ -80,12 +82,10 @@ function listDepartments() {
     `SELECT * FROM employee_trackerdb.department;`,
     function (err, res) {
       if (err) throw err;
-      showResults(res);
+      tableResults(res);
     }
   )
 };
-
-let continueQuestions = true;
 
 const askQuestions = async () => {
   const questions = [
@@ -93,20 +93,33 @@ const askQuestions = async () => {
       type: 'list',
       name: 'directory',
       choices: [
-        "See All",
+        "See All Results",
+        "Departments",
+        "Roles",
+        "Employees"
+      ],
+      message: "Select a category?"
+    },
+    {
+      type: 'list',
+      name: 'departmentDir',
+      choices: [
         "Add a department",
         "Remove a department",
         "List all departments",
-        "No more questions"
+        "Go back"
       ],
-      message: "What do you want to do?"
+      message: 'Select a choice: ',
+      when: function (answers) {
+        return answers.directory === "Departments"
+      }
     },
     {
       type: 'input',
       name: 'departmentName',
       message: 'What is the name of the department you want to add?',
       when: function (answers) {
-        return answers.directory === 'Add a department'
+        return answers.departmentDir === 'Add a department'
       }
     },
     {
@@ -114,27 +127,23 @@ const askQuestions = async () => {
       name: 'departmentName',
       message: 'What is the name of the department you want to remove?',
       when: function (answers) {
-        return answers.directory === 'Remove a department'
+        return answers.departmentDir === 'Remove a department'
       }
     }
   ];
 
   const { ...answers } = await inquirer.prompt(questions);
-  if (answers.directory === "No More questions") {
-    continueQuestions = false
-  };
-  if (answers.directory === 'See All') {
+
+  if (answers.directory === 'See All Results') {
     showAll();
-  };
-  if (answers.directory === 'Add a department') {
+  }
+  else if (answers.departmentDir === 'Add a department') {
     addDepartment(answers.departmentName);
-    showAll();
-  };
-  if (answers.directory === 'Remove a department') {
+  }
+  else if (answers.departmentDir === 'Remove a department') {
     removeDepartment(answers.departmentName);
-    showAll();
-  };
-  if (answers.directory === 'List all departments') {
+  }
+  else if (answers.departmentDir === 'List all departments') {
     listDepartments();
   };
 
