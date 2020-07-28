@@ -24,7 +24,8 @@ connection.connect(function (err) {
   showAll();
 });
 
-// Utility Functions
+
+// ------ Functions ------- //
 function tableResults(results) {
   console.log(`\n`);
   console.table(results);
@@ -152,6 +153,7 @@ function listEmployees() {
   )
 };
 
+// ------- Questions -------- //
 const askQuestions = async () => {
   const questions = [
     {
@@ -298,7 +300,7 @@ const askQuestions = async () => {
     }
   ];
   
-  // Asking questions
+  // Prompting questions
   const { ...answers } = await inquirer.prompt(questions);
 
   // Parsing results and acting upon them
@@ -336,7 +338,7 @@ const askQuestions = async () => {
     continueQuestions = false 
   };
 
-  // Looping questions
+  // Looping 
   return continueQuestions ? askQuestions() : console.log("Done.", `\nThank you for using Employee Tracker!`);
 }
 
