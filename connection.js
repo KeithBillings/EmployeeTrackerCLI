@@ -25,6 +25,7 @@ connection.connect(function (err) {
 });
 
 function tableResults(results) {
+  console.log(`\n`);
   console.table(results);
 };
 
@@ -54,6 +55,7 @@ function showAll() {
     })
 };
 
+// Adding functions
 function addDepartment(name) {
   connection.query(
     `INSERT INTO department (department)
@@ -65,7 +67,19 @@ function addDepartment(name) {
     }
   )
 };
+function addRole (title, salary, department_id) {
+  connection.query(
+    `INSERT INTO role (title, salary, department_id)
+    VALUES ("${title}", ${salary}, ${department_id});`,
+    function (err, res){
+      if (err) throw err;
+      console.log(`Added a role titled: ${title}, with a salary of ${salary}.`)
+      listRoles();
+    }
+  )
+}
 
+// Removing functions
 function removeDepartment(name) {
   connection.query(
     `DELETE FROM department WHERE department = "${name}"`,
@@ -76,7 +90,18 @@ function removeDepartment(name) {
     }
   )
 };
+function removeRole(title) {
+  connection.query(
+    `DELETE FROM role WHERE title = "${title}"`,
+    function (err, res) {
+      if (err) throw err;
+      console.log(`Removed the department titled: ${title}.`)
+      listDepartments(res);
+    }
+  )
+};
 
+// Listing functions
 function listDepartments() {
   connection.query(
     `SELECT * FROM employee_trackerdb.department;`,
@@ -86,7 +111,26 @@ function listDepartments() {
     }
   )
 };
+function listRoles() {
+  connection.query(
+    `SELECT * FROM employee_trackerdb.role;`,
+    function (err, res) {
+      if (err) throw err;
+      tableResults(res);
+    }
+  )
+};
+function listEmployees() {
+  connection.query(
+    `SELECT * FROM employee_trackerdb.employee;`,
+    function (err, res) {
+      if (err) throw err;
+      tableResults(res);
+    }
+  )
+};
 
+// --------- Questions ------------- //
 const askQuestions = async () => {
   const questions = [
     {
@@ -106,8 +150,7 @@ const askQuestions = async () => {
       choices: [
         "Add a department",
         "Remove a department",
-        "List all departments",
-        "Go back"
+        "List all departments"
       ],
       message: 'Select a choice: ',
       when: function (answers) {
@@ -129,11 +172,71 @@ const askQuestions = async () => {
       when: function (answers) {
         return answers.departmentDir === 'Remove a department'
       }
+    },
+    {
+      type: 'list',
+      name: 'rolesDir',
+      choices: [
+        "Add a role",
+        "Remove a role",
+        "List all roles"
+      ],
+      message: 'Select a choice: ',
+      when: function (answers) {
+        return answers.directory === "Roles"
+      }
+    },
+    {
+      type: 'input',
+      name: 'roleTitle',
+      message: 'What is the title of this role you want to add?',
+      when: function(answers){
+        return answers.roleDir === 'Add a role'
+      }
+    },
+    {
+      type: 'input',
+      name: 'roleSalary',
+      message: 'What is the salary of the role you are adding?',
+      when: function (answers){
+        return answers.roleDir === 'Add a role'
+      }
+    },
+    {
+      type: 'number',
+      name: 'roleDepartment_id',
+      message: 'What is the department id number that this role will be assigned to?',
+      when: function(answers){
+        return answers.roleDir === 'Add a role'
+      }
+    },
+    {
+      type: 'input',
+      name: 'roleTitle',
+      message: 'What is the title of the role you want to delete?',
+      when: function (answers){
+        return answers.roleDir === 'Remove a role'
+      }
+    },
+    {
+      type: 'list',
+      name: 'employeeDir',
+      choices: [
+        "Add an employee",
+        "Remove an employee",
+        "List all employees"
+      ],
+      message: 'Select a choice: ',
+      when: function (answers) {
+        return answers.directory === 'Employees'
+      }      
     }
   ];
-
+  
+  // Asking questions
   const { ...answers } = await inquirer.prompt(questions);
 
+  // Parsing results and acting upon them
   if (answers.directory === 'See All Results') {
     showAll();
   }
@@ -145,8 +248,27 @@ const askQuestions = async () => {
   }
   else if (answers.departmentDir === 'List all departments') {
     listDepartments();
-  };
+  }
+  else if (answers.rolesDir === 'Add a role'){
+    addRole(answers.roleTitle, answers.roleSalary, answers.roleDepartment_id);
+  }
+  else if (answers.rolesDir === 'Remove a role'){
+    removeRole(answers.roleTitle);
+  }
+  else if (answers.rolesDir === 'List all roles'){
+    listRoles();
+  }
+  else if (answers.rolesDir === 'Add an employee'){
+    addEmployee();
+  }
+  else if (answers.rolesDir === 'Remove an employee'){
+    removeEmployee();
+  }
+  else if (answers.rolesDir === 'List all employees'){
+    listEmployees();
+  }
 
+  // Looping questions
   return continueQuestions ? askQuestions() : console.log("Done!");
 }
 
