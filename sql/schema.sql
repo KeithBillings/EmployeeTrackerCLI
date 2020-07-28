@@ -19,13 +19,7 @@ CREATE TABLE employee (
 id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
 first_name VARCHAR(30),
 last_name VARCHAR(30),
-role_id INT, 
-manager_id INT
-);
-
-CREATE TABLE managers (
-id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-manager VARCHAR (30)
+role_id INT
 );
 
 SELECT 	
@@ -34,7 +28,6 @@ SELECT
   employee.last_name,
   role.title,
   department.department,
-  managers.manager,
   role.salary        
 FROM employee 
 LEFT OUTER JOIN role ON (
@@ -42,7 +35,4 @@ LEFT OUTER JOIN role ON (
 )
 LEFT OUTER JOIN department ON (
 	department.id = role.department_id
-)
-LEFT OUTER JOIN managers ON (
-	employee.manager_id = managers.id
 );

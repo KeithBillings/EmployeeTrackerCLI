@@ -33,11 +33,3 @@ INSERT INTO employee (first_name, last_name, role_id)
 VALUES ("Keith", "Billings", 5);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Steve", "Jobs", 6, 3);
-
--- Managers
-INSERT INTO managers (manager)
-VALUES ("Ricky Bobby");
-INSERT INTO managers (manager)
-VALUES ("Dollar Bill");
-INSERT INTO managers (manager)
-VALUES ("Keith Billings");
