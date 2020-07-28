@@ -77,7 +77,18 @@ function addRole (title, salary, department_id) {
       listRoles();
     }
   )
-}
+};
+function addEmployee (first_name, last_name, role_id) {
+  connection.query(
+    `INSERT INTO employee (first_name, last_name, role_id)
+    VALUES ("${first_name}", "${last_name}", ${role_id});`,
+    function (err, res){
+      if (err) throw err;
+      console.log(`Added an employee named: ${first_name} ${last_name}.`)
+      listEmployees(res);
+    }
+  )
+};
 
 // Removing functions
 function removeDepartment(name) {
@@ -95,8 +106,18 @@ function removeRole(title) {
     `DELETE FROM role WHERE title = "${title}"`,
     function (err, res) {
       if (err) throw err;
-      console.log(`Removed the department titled: ${title}.`)
-      listDepartments(res);
+      console.log(`Removed the role titled: ${title}.`)
+      listRoles(res);
+    }
+  )
+};
+function removeEmployee(first_name, last_name) {
+  connection.query(
+    `DELETE FROM employee WHERE first_name = "${first_name}" AND last_name = "${last_name}"`,
+    function (err, res) {
+      if (err) throw err;
+      console.log(`Removed the employee named: ${first_name} ${last_name}.`)
+      listEmployees(res);
     }
   )
 };
@@ -130,7 +151,6 @@ function listEmployees() {
   )
 };
 
-// --------- Questions ------------- //
 const askQuestions = async () => {
   const questions = [
     {
@@ -175,7 +195,7 @@ const askQuestions = async () => {
     },
     {
       type: 'list',
-      name: 'rolesDir',
+      name: 'roleDir',
       choices: [
         "Add a role",
         "Remove a role",
@@ -230,6 +250,46 @@ const askQuestions = async () => {
       when: function (answers) {
         return answers.directory === 'Employees'
       }      
+    },
+    {
+      type: 'input',
+      name: 'empFirstName',
+      message: 'What is the first name of the employee you want to add?',
+      when: function (answers) {
+        return answers.employeeDir === 'Add an employee'
+      }
+    },
+    {
+      type: 'input',
+      name: 'empLastName',
+      message: 'What is the last name of the employee you want to add?',
+      when: function (answers) {
+        return answers.employeeDir === 'Add an employee'
+      }
+    },
+    {
+      input: 'number',
+      name: 'empRole_id',
+      message: 'What is the role id that this employee will be assigned to?',
+      when: function (answers) {
+        return answers.employeeDir === 'Add an employee'
+      }
+    },
+    {
+      type: 'input',
+      name: 'empFirstName',
+      message: 'What is the first name of the employee you want to remove?',
+      when: function (answers) {
+        return answers.employeeDir === 'Remove an employee'
+      }
+    },
+    {
+      type: 'input',
+      name: 'empLastName',
+      message: 'What is the last name of the employee you want to remove?',
+      when: function (answers) {
+        return answers.employeeDir === 'Remove an employee'
+      }
     }
   ];
   
@@ -249,24 +309,24 @@ const askQuestions = async () => {
   else if (answers.departmentDir === 'List all departments') {
     listDepartments();
   }
-  else if (answers.rolesDir === 'Add a role'){
+  else if (answers.roleDir === 'Add a role'){
     addRole(answers.roleTitle, answers.roleSalary, answers.roleDepartment_id);
   }
-  else if (answers.rolesDir === 'Remove a role'){
+  else if (answers.roleDir === 'Remove a role'){
     removeRole(answers.roleTitle);
   }
-  else if (answers.rolesDir === 'List all roles'){
+  else if (answers.roleDir === 'List all roles'){
     listRoles();
   }
-  else if (answers.rolesDir === 'Add an employee'){
-    addEmployee();
+  else if (answers.employeeDir === 'Add an employee'){
+    addEmployee(answers.empFirstName, answers.empLastName, answers.empRole_id);
   }
-  else if (answers.rolesDir === 'Remove an employee'){
-    removeEmployee();
+  else if (answers.employeeDir === 'Remove an employee'){
+    removeEmployee(answers.empFirstName, answers.empLastName);
   }
-  else if (answers.rolesDir === 'List all employees'){
+  else if (answers.employeeDir === 'List all employees'){
     listEmployees();
-  }
+  };
 
   // Looping questions
   return continueQuestions ? askQuestions() : console.log("Done!");
