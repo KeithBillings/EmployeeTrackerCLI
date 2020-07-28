@@ -24,6 +24,7 @@ connection.connect(function (err) {
   showAll();
 });
 
+// Utility Functions
 function tableResults(results) {
   console.log(`\n`);
   console.table(results);
@@ -160,10 +161,12 @@ const askQuestions = async () => {
         "See All Results",
         "Departments",
         "Roles",
-        "Employees"
+        "Employees",
+        "No more questions"
       ],
-      message: "Select a category?"
+      message: "Select a category: "
     },
+    // Department Questions
     {
       type: 'list',
       name: 'departmentDir',
@@ -193,6 +196,7 @@ const askQuestions = async () => {
         return answers.departmentDir === 'Remove a department'
       }
     },
+    // Role Questions
     {
       type: 'list',
       name: 'roleDir',
@@ -238,6 +242,7 @@ const askQuestions = async () => {
         return answers.roleDir === 'Remove a role'
       }
     },
+    // Employee Questions
     {
       type: 'list',
       name: 'employeeDir',
@@ -326,10 +331,13 @@ const askQuestions = async () => {
   }
   else if (answers.employeeDir === 'List all employees'){
     listEmployees();
+  }
+  else if (answers.directory === 'No more questions'){
+    continueQuestions = false 
   };
 
   // Looping questions
-  return continueQuestions ? askQuestions() : console.log("Done!");
+  return continueQuestions ? askQuestions() : console.log("Done.", `\nThank you for using Employee Tracker!`);
 }
 
 askQuestions();
