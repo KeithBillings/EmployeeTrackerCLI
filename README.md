@@ -6,6 +6,8 @@ This is a CLI app that demonstrates how a user can keep track of their employees
 
 ## Table of Contents
 
+ * [Installation](#installation)
+
  * [Usage](#usage)
 
  * [Screenshot](#screenshot)
@@ -13,6 +15,18 @@ This is a CLI app that demonstrates how a user can keep track of their employees
  * [Authors](#authors)
 
  * [Questions](#questions)
+
+## Installation
+
+- Clone this repo 
+
+- Copy the schema.sql file into MySQL workbench and run it
+
+- Copy the seed.sql file into MySQL workbench and run it next
+
+- Install the dependancies with the terminal command: ``` npm i ```
+
+- Run the application with the command: ``` npm start ```
 
 ## Usage
 
