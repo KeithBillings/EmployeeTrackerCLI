@@ -2,7 +2,6 @@ const mysql = require("mysql");
 const consoleTable = require("console.table");
 const inquirer = require('inquirer');
 const DB_PASSWORD = require("./password");
-const { up } = require("inquirer/lib/utils/readline");
 
 let continueQuestions = true;
 
