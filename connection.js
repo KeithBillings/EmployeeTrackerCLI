@@ -1,6 +1,8 @@
 const mysql = require("mysql");
 const consoleTable = require("console.table");
 const inquirer = require('inquirer');
+const DB_PASSWORD = require("./password");
+const { up } = require("inquirer/lib/utils/readline");
 
 let continueQuestions = true;
 
@@ -14,7 +16,7 @@ const connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "", // Change this to your MySQL password
+  password: DB_PASSWORD, // Change this to your MySQL password
   database: "employee_trackerdb"
 });
 
@@ -23,7 +25,6 @@ connection.connect(function (err) {
   console.log("connected as id " + connection.threadId);
   showAll();
 });
-
 
 // ------ Functions ------- //
 function tableResults(results) {
@@ -39,7 +40,6 @@ function showAll() {
     employee.last_name,
     role.title,
     department.department,
-    managers.manager,
     role.salary        
   FROM employee 
   LEFT OUTER JOIN role ON (
@@ -47,9 +47,6 @@ function showAll() {
   )
   LEFT OUTER JOIN department ON (
     department.id = role.department_id
-  )
-  LEFT OUTER JOIN managers ON (
-    employee.manager_id = managers.id
   );`,
     function (err, res) {
       if (err) throw err;
@@ -69,22 +66,22 @@ function addDepartment(name) {
     }
   )
 };
-function addRole (title, salary, department_id) {
+function addRole(title, salary, department_id) {
   connection.query(
     `INSERT INTO role (title, salary, department_id)
     VALUES ("${title}", ${salary}, ${department_id});`,
-    function (err, res){
+    function (err, res) {
       if (err) throw err;
       console.log(`Added a role titled: ${title}, with a salary of ${salary}.`)
       listRoles();
     }
   )
 };
-function addEmployee (first_name, last_name, role_id) {
+function addEmployee(first_name, last_name, role_id) {
   connection.query(
     `INSERT INTO employee (first_name, last_name, role_id)
     VALUES ("${first_name}", "${last_name}", ${role_id});`,
-    function (err, res){
+    function (err, res) {
       if (err) throw err;
       console.log(`Added an employee named: ${first_name} ${last_name}.`)
       listEmployees(res);
@@ -153,6 +150,23 @@ function listEmployees() {
   )
 };
 
+// Update Functions
+function updateRoleTitle(newRoleTitle, oldRoleTitle) {
+  connection.query(
+    `UPDATE employee_trackerdb.role SET title = "${newRoleTitle}" WHERE title = "${oldRoleTitle}";`,
+    function (err, res){
+      if (err) throw err;
+    }
+  )
+  listRoles();
+};
+function updateEmpRole(newRoleId, employeeID) {
+  connection.query(
+    `UPDATE employee_trackerdb.employee SET role_id = "${newRoleId}" WHERE id = "${employeeID}"`
+  )
+  listEmployees();
+};
+
 // ------- Questions -------- //
 const askQuestions = async () => {
   const questions = [
@@ -204,6 +218,7 @@ const askQuestions = async () => {
       name: 'roleDir',
       choices: [
         "Add a role",
+        "Update a role",
         "Remove a role",
         "List all roles"
       ],
@@ -216,7 +231,7 @@ const askQuestions = async () => {
       type: 'input',
       name: 'roleTitle',
       message: 'What is the title of this role you want to add?',
-      when: function(answers){
+      when: function (answers) {
         return answers.roleDir === 'Add a role'
       }
     },
@@ -224,7 +239,7 @@ const askQuestions = async () => {
       type: 'input',
       name: 'roleSalary',
       message: 'What is the salary of the role you are adding?',
-      when: function (answers){
+      when: function (answers) {
         return answers.roleDir === 'Add a role'
       }
     },
@@ -232,15 +247,59 @@ const askQuestions = async () => {
       type: 'number',
       name: 'roleDepartment_id',
       message: 'What is the department id number that this role will be assigned to?',
-      when: function(answers){
+      when: function (answers) {
         return answers.roleDir === 'Add a role'
+      }
+    },
+    {
+      type: 'list',
+      name: 'updateDir',
+      message: "What do you want to do?",
+      choices: [
+        "Update a role's title",
+        "Update an employee's role"
+      ],
+      when: function (answers) {
+        return answers.roleDir === "Update a role"
+      }
+    },
+    {
+      type: 'input',
+      name: 'oldRoleTitle',
+      message: 'What is the title of the role you want to update?',
+      when: function (answers) {
+        return answers.updateDir === "Update a role's title"
+      }
+    },
+    {
+      type: 'input',
+      name: 'newRoleTitle',
+      message: 'What is the NEW title of the role you want to update?',
+      when: function (answers) {
+        return answers.updateDir === "Update a role's title"
+      }
+    },
+    {
+      type: 'number',
+      name: 'employeeID',
+      message: 'What is the ID of the employee you want to change the role of?',
+      when: function (answers) {
+        return answers.updateDir === "Update an employee's role"
+      }
+    },
+    {
+      type: 'number',
+      name: 'newRoleId',
+      message: 'What is the ID of the role you want this employee to now have?',
+      when: function (answers) {
+        return answers.updateDir === "Update an employee's role"
       }
     },
     {
       type: 'input',
       name: 'roleTitle',
       message: 'What is the title of the role you want to delete?',
-      when: function (answers){
+      when: function (answers) {
         return answers.roleDir === 'Remove a role'
       }
     },
@@ -256,7 +315,7 @@ const askQuestions = async () => {
       message: 'Select a choice: ',
       when: function (answers) {
         return answers.directory === 'Employees'
-      }      
+      }
     },
     {
       type: 'input',
@@ -299,7 +358,7 @@ const askQuestions = async () => {
       }
     }
   ];
-  
+
   // Prompting questions
   const { ...answers } = await inquirer.prompt(questions);
 
@@ -316,26 +375,33 @@ const askQuestions = async () => {
   else if (answers.departmentDir === 'List all departments') {
     listDepartments();
   }
-  else if (answers.roleDir === 'Add a role'){
+  else if (answers.roleDir === 'Add a role') {
     addRole(answers.roleTitle, answers.roleSalary, answers.roleDepartment_id);
   }
-  else if (answers.roleDir === 'Remove a role'){
+  else if (answers.updateDir === "Update a role's title") {
+    updateRoleTitle(answers.newRoleTitle, answers.oldRoleTitle);
+  }
+  else if (answers.updateDir === "Update an employee's role"){
+    updateEmpRole(answers.newRoleId, answers.employeeID)
+  }
+  else if (answers.roleDir === 'Remove a role') {
     removeRole(answers.roleTitle);
   }
-  else if (answers.roleDir === 'List all roles'){
+  else if (answers.roleDir === 'List all roles') {
     listRoles();
   }
-  else if (answers.employeeDir === 'Add an employee'){
+  else if (answers.employeeDir === 'Add an employee') {
     addEmployee(answers.empFirstName, answers.empLastName, answers.empRole_id);
   }
-  else if (answers.employeeDir === 'Remove an employee'){
+  else if (answers.employeeDir === 'Remove an employee') {
     removeEmployee(answers.empFirstName, answers.empLastName);
   }
-  else if (answers.employeeDir === 'List all employees'){
+  else if (answers.employeeDir === 'List all employees') {
     listEmployees();
   }
-  else if (answers.directory === 'No more questions'){
-    continueQuestions = false 
+  else if (answers.directory === 'No more questions') {
+    continueQuestions = false;
+    connection.end();
   };
 
   // Looping 
