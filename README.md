@@ -22,7 +22,7 @@ This is a demonstration of how a user can use databases from CLI to access, crea
 
 ![example](./images/example.gif)
 
-<img src="./images/mysql_screenshot.png" alt= "screenshot" height = 500 />
+<img src="./images/mysql_screenshot.png" alt= "screenshot" height = "500" />
 
 ## Authors
 
