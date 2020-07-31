@@ -6,8 +6,6 @@ This is a CLI app that demonstrates how a user can keep track of their employees
 
 ## Table of Contents
 
- * [Deployment](#deployment)
-
  * [Usage](#usage)
 
  * [Screenshot](#screenshot)
@@ -16,12 +14,9 @@ This is a CLI app that demonstrates how a user can keep track of their employees
 
  * [Questions](#questions)
 
-## Deployment
-
-
 ## Usage
 
-This is a demonstration of how a user can use databases from CLI to access, create, or delete information. 
+This is a demonstration of how a user can use databases from CLI to access, create, or delete information on a database. 
 
 ## Screenshot
 
